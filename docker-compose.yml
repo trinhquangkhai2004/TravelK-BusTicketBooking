@@ -1,0 +1,45 @@
+services:
+  # MySQL
+  db_mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: bus_reservation_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    # Redis
+  cache_redis:
+    image: redis
+    container_name: bus_reservation_redis
+    ports:
+      - "6379:6379"
+
+    # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  bus_app:
+    build: .
+    container_name: bus_ticket_booking
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db_mysql
+      - cache_redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db_mysql:3306/bus_reservation_db?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATA_REDIS_HOST: cache_redis
+      SPRING_DATA_REDIS_PORT: 6379
+
+volumes:
+  mysql_data:
