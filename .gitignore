@@ -1,38 +1,23 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
+### JetBrains IDE ###
+.idea/
 *.iml
-*.ipr
+out/
+gen/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+### Build tools ###
+/target/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+.gradle/
 
-### VS Code ###
-.vscode/
+### Frontend (Vite/Node) ###
+node_modules/
+dist/
+dist-ssr/
+*.local
 
-### Mac OS ###
+### Log files ###
+*.log
+
+### OS files ###
 .DS_Store
+Thumbs.db
