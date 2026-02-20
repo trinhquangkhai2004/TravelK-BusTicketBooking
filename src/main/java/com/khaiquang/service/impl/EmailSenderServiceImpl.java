@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -28,6 +29,16 @@ public class EmailSenderServiceImpl implements EmailSenderService {
     public void sendSeatsInformation(String toEmail, Map<String, Object> attributes) {
         String text = getEmailContent("seats-info.ftlh", attributes);
         sendEmail(toEmail, "[TravelK] Xác nhận đặt vé thành công", text);
+    }
+
+    @Override
+    public void sendResetPasswordEmail(String toEmail, String userName, String resetLink) {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("userName", userName);
+        attributes.put("resetLink", resetLink);
+        
+        String text = getEmailContent("reset-password.ftlh", attributes);
+        sendEmail(toEmail, "[TravelK] Yêu cầu đặt lại mật khẩu", text);
     }
 
     private void sendEmail(String toEmail, String subject, String text) {

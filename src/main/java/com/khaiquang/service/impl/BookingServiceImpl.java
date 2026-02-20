@@ -39,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String HOLD_KEY_PREFIX = "hold:trip:";
-    private static final long HOLD_TIMEOUT = 1; // 5 phút
+    private static final long HOLD_TIMEOUT = 1; //
 
     @Override
     public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto) {
@@ -92,7 +92,7 @@ public class BookingServiceImpl implements BookingService {
 
         return new BookingResponseDto(
                 savedBooking.getId(),
-                "PENDING", // Trả về trạng thái Pending
+                "PENDING",
                 user.getId(),
                 trip.getId(),
                 user.getUserName(),
@@ -176,12 +176,42 @@ public class BookingServiceImpl implements BookingService {
         return HOLD_KEY_PREFIX + tripId + ":seat:" + seatNumber;
     }
     
+    @Override
+    public List<BookingResponseDto> getBookingsByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User", "id", userId);
+        }
+
+        return bookingRepository.findByUserId(userId).stream()
+                .map(booking -> new BookingResponseDto(
+                        booking.getId(),
+                        booking.getStatus(),
+                        booking.getUser().getId(),
+                        booking.getTrip().getId(),
+                        booking.getUser().getUserName(),
+                        booking.getUser().getPhoneNumber()
+                ))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<BookingResponseDto> getAllBookings() {
+        return bookingRepository.findAll().stream()
+                .map(booking -> new BookingResponseDto(
+                        booking.getId(),
+                        booking.getStatus(),
+                        booking.getUser().getId(),
+                        booking.getTrip().getId(),
+                        booking.getUser().getUserName(),
+                        booking.getUser().getPhoneNumber()
+                ))
+                .collect(Collectors.toList());
+    }
 
     @Scheduled(fixedRate = 60000)
     public void autoCancelUnpaidBookings() {
         LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(1); // 1 phút
         
-        // Cần thêm method findByStatusAndCreatedAtBefore trong Repository
         List<BookingTrip> expiredBookings = bookingRepository.findByStatusAndCreatedAtBefore("PENDING", expirationTime);
         
         for (BookingTrip booking : expiredBookings) {

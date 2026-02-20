@@ -3,12 +3,18 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import HomePage from './components/HomePage';
 import SearchResults from './components/SearchResults';
 import AuthPage from './components/AuthPage';
+import ForgotPasswordPage from './components/ForgotPasswordPage'; // Import
+import ResetPasswordPage from './components/ResetPasswordPage'; // Import
 import PaymentResult from './components/PaymentResult';
+import MyTickets from './components/MyTickets';
+import Support from './components/Support';
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/Dashboard';
 import TripManager from './admin/TripManager';
 import BusManager from './admin/BusManager';
-import ChatBox from './components/ChatBox'; // Import ChatBox
+import BookingManager from './admin/BookingManager';
+import UserManager from './admin/UserManager';
+import ChatBox from './components/ChatBox';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -20,19 +26,22 @@ const App: React.FC = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/auth" element={<AuthPage onLoginSuccess={() => {}} />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/booking-success" element={<PaymentResult />} />
+        <Route path="/my-tickets" element={<MyTickets />} />
+        <Route path="/support" element={<Support />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="buses" element={<BusManager />} />
           <Route path="trips" element={<TripManager />} />
-          <Route path="bookings" element={<div>Quản lý Đặt vé (Coming Soon)</div>} />
-          <Route path="users" element={<div>Quản lý Người dùng (Coming Soon)</div>} />
+          <Route path="bookings" element={<BookingManager />} />
+          <Route path="users" element={<UserManager />} />
         </Route>
       </Routes>
       
-      {/* ChatBox Global */}
       <ChatBox />
       
       <ToastContainer position="top-right" autoClose={3000} />

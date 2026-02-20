@@ -34,13 +34,14 @@ const ChatBox: React.FC = () => {
     setLoading(true);
 
     try {
-      // Gọi API Backend
-      // Lưu ý: Cần cấu hình proxy cho /api/chat trong vite.config.ts
       const response = await axios.post('/api/chat', { message: userMessage.text });
+      console.log("AI Response:", response.data); // Debug log
+
+      const botText = response.data.response || "Xin lỗi, tôi không hiểu câu hỏi.";
       
       const botMessage: Message = { 
         id: Date.now() + 1, 
-        text: response.data.response, 
+        text: botText, 
         sender: 'bot' 
       };
       setMessages(prev => [...prev, botMessage]);
@@ -88,7 +89,7 @@ const ChatBox: React.FC = () => {
           <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-3">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+                <div className={`max-w-[85%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${
                   msg.sender === 'user' 
                     ? 'bg-blue-600 text-white rounded-br-none' 
                     : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-none'

@@ -40,8 +40,7 @@ public class TripServiceImpl implements TripService {
     public TripResponseDto addTrip(TripDto tripDto) {
         Bus bus = busRepository.findById(tripDto.getBusId()).orElseThrow(() ->
                 new ResourceNotFoundException("Bus", "id",  tripDto.getBusId()));
-        
-        // Tự động tạo trạm nếu chưa có
+
         Station arrivalStation = getOrCreateStation(tripDto.getArrivalStationName());
         Station departureStation = getOrCreateStation(tripDto.getDepartureStationName());
 

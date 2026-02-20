@@ -1,7 +1,9 @@
 package com.khaiquang.controller;
 
+import com.khaiquang.dto.request.ChatRequestDto;
+import com.khaiquang.service.ChatService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,16 +13,13 @@ import java.util.Map;
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatController {
-
-    private final ChatModel chatModel;
+    private final ChatService chatService;
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> chat(@RequestBody Map<String, String> payload) {
-        String message = payload.get("message");
-        
-        // ChatModel luôn có phương thức call(String) hoặc call(Prompt)
-        String response = chatModel.call(message);
-
-        return ResponseEntity.ok(Map.of("response", response));
+    public ResponseEntity<Map<String, String>> chat(@RequestBody ChatRequestDto request){
+        String message = request.message();
+        String response = chatService.call(message);
+        return new ResponseEntity<>(Map.of("response", response), HttpStatus.OK);
     }
+
 }

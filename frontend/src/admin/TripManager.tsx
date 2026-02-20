@@ -23,18 +23,15 @@ interface Bus {
   seats: number;
 }
 
-// Không cần interface Station nữa vì nhập text
-
 const TripManager: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [buses, setBuses] = useState<Bus[]>([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // Form State - Đổi sang dùng Name thay vì ID cho trạm
   const [formData, setFormData] = useState({
-    departureStationName: '', // Changed from Id to Name
-    arrivalStationName: '',   // Changed from Id to Name
+    departureStationName: '',
+    arrivalStationName: '',
     busId: '',
     price: '',
     departureDate: '',

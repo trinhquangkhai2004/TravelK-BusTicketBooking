@@ -46,6 +46,9 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Set<Role> roles = new HashSet<>();
+        Role userRole = roleRepository.findByRoleName("ROLE_USER")
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "name", "USER"));
+        roles.add(userRole);
         user.setRoles(roles);
 
         User savedUser = userRepository.save(user);
@@ -86,7 +89,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
-        return users.stream().map(user -> userMapper.toUserResponse(user)).toList();
+        return users.stream().map(userMapper::toUserResponse).toList();
     }
 
     @Override

@@ -14,7 +14,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
 
   // Login State
   const [loginData, setLoginData] = useState({
-    email: '', // Field name is email but accepts username too
+    email: '',
     password: ''
   });
 
@@ -123,7 +123,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email hoặc Tên đăng nhập</label>
                 <input
                   name="email"
-                  type="text" // Changed from email to text to allow username
+                  type="text"
                   required
                   className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                   placeholder="Nhập email hoặc username"
@@ -159,9 +159,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                   Quên mật khẩu?
-                </a>
+                </Link>
               </div>
             </div>
 

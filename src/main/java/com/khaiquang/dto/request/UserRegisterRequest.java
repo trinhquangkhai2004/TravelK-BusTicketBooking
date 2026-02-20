@@ -16,11 +16,11 @@ import java.util.List;
 public class UserRegisterRequest {
     @NotBlank(message = "User name can not be empty")
     private String userName;
-    @NotBlank(message = "Password can not be empty")
-    private String password;
     @NotBlank(message = "Email can not be empty")
     @Email(message = "Invalid Email")
     private String email;
+    @NotBlank(message = "Password can not be empty")
+    private String password;
     @NotBlank(message = "Phone number can not be empty")
     private String phoneNumber;
 

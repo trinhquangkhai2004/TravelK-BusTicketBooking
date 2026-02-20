@@ -8,7 +8,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 public interface PaymentService {
-    // Cập nhật signature để nhận bookingId
     VnPayResponse createOrder(HttpServletRequest request, long amount, String bankCode, Long bookingId);
     int returnOrder(HttpServletRequest request);
 }

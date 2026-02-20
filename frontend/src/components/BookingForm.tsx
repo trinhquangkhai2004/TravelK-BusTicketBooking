@@ -259,10 +259,8 @@ const BookingForm: React.FC = () => {
               amount: amount,
               bookingId: bookingId
           });
-          
-          // FIX: Check for "ok" or "00" and use paymentUrl or data
+
           if (response.data.code === "00" || response.data.code === "ok") {
-              // Redirect to VNPay
               const url = response.data.data || response.data.paymentUrl;
               if (url) {
                   window.location.href = url;

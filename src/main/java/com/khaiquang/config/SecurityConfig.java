@@ -46,6 +46,7 @@ public class SecurityConfig {
                                 .requestMatchers("/trips/**").permitAll()
                                 .requestMatchers("/booking/**").permitAll()
                                 .requestMatchers("/api/chat/**").permitAll()
+                                .requestMatchers("/actuator/**").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(manager ->
                         manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

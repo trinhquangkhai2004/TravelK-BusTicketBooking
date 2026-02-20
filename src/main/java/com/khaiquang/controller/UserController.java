@@ -26,9 +26,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId,
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
                                                    @RequestBody UserUpdateRequest request){
-        return  new  ResponseEntity<>(userService.updateUser(userId, request), HttpStatus.OK);
+        return  new  ResponseEntity<>(userService.updateUser(id, request), HttpStatus.OK);
     }
 
     @GetMapping
@@ -37,8 +37,8 @@ public class UserController {
     }
 
     @GetMapping("/email/{id}")
-    public ResponseEntity<String> getEmailUser(@PathVariable Long userId){
-        return  new ResponseEntity<>(userService.getEmailUser(userId), HttpStatus.OK);
+    public ResponseEntity<String> getEmailUser(@PathVariable Long id){
+        return  new ResponseEntity<>(userService.getEmailUser(id), HttpStatus.OK);
     }
 
     @GetMapping("/all")
@@ -48,8 +48,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long userId){
-        userService.deleteUser(userId);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id){
+        userService.deleteUser(id);
         return new ResponseEntity<>("Delete Successfully",HttpStatus.OK);
     }
 }

@@ -17,6 +17,10 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     List<Trip> findByBusId(Long busId);
 
     List<Trip> findByOriginAndDestinationAndDepartureDate(String origin, String destination, LocalDate departureDate);
+    
+    // Tìm kiếm linh hoạt cho Chatbot
+    @Query("SELECT t FROM Trip t WHERE t.origin LIKE %:keyword% OR t.destination LIKE %:keyword%")
+    List<Trip> searchByKeyword(@Param("keyword") String keyword);
 
     @Query("""
         SELECT COUNT(t) > 0

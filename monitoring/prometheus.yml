@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+#  - job_name: 'prometheus'
+#    static_configs:
+#      - targets: [ 'host.docker.internal:9090' ]
+
+  - job_name: 'travelK-bus_ticket_booking'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['travelK-bus_ticket_booking:8080']
+        labels:
+          application: 'travelK-bus_ticket_booking'
+

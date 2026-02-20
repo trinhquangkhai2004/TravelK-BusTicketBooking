@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class BookingController {
     }
 
     @DeleteMapping("/{bookingId}")
+    @PreAuthorize("hasRole('ADMIN')") // Chỉ Admin mới được xóa
     public ResponseEntity<Void> deleteBooking(@PathVariable Long bookingId) {
         bookingService.deleteBooking(bookingId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -69,5 +71,16 @@ public class BookingController {
         
         bookingService.releaseSeats(tripId, seatNumbers, userId);
         return ResponseEntity.ok().build();
+    }
+    
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<BookingResponseDto>> getBookingsByUserId(@PathVariable Long userId) {
+        return new ResponseEntity<>(bookingService.getBookingsByUserId(userId), HttpStatus.OK);
+    }
+    
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<BookingResponseDto>> getAllBookings() {
+        return new ResponseEntity<>(bookingService.getAllBookings(), HttpStatus.OK);
     }
 }

@@ -7,6 +7,11 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
+        // tách ra booking$ và booking/ để làm hai 2 th cụ thể cho API booking/ ở BE
+      '^/booking$': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true
+      },
       '^/booking/': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true
@@ -31,8 +36,15 @@ export default defineConfig({
         target: 'http://127.0.0.1:8080',
         changeOrigin: true
       },
-      // Thêm proxy cho Chat API
       '/api': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true
+      },
+      '/buses': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true
+      },
+      '/station': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true
       }
