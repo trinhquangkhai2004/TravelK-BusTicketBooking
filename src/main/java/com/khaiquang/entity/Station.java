@@ -20,8 +20,13 @@ public class Station {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "station_id")
     private Long id;
+    
     @Column(name = "station_name")
     private String name;
+    
+    @Column(name = "address")
+    private String address;
+    
     @OneToMany(mappedBy = "station",  cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Bus> buses = new ArrayList<>();
 

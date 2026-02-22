@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import HomePage from './components/HomePage';
 import SearchResults from './components/SearchResults';
 import AuthPage from './components/AuthPage';
-import ForgotPasswordPage from './components/ForgotPasswordPage'; // Import
-import ResetPasswordPage from './components/ResetPasswordPage'; // Import
+import ForgotPasswordPage from './components/ForgotPasswordPage';
+import ResetPasswordPage from './components/ResetPasswordPage';
 import PaymentResult from './components/PaymentResult';
 import MyTickets from './components/MyTickets';
 import Support from './components/Support';
@@ -14,6 +14,7 @@ import TripManager from './admin/TripManager';
 import BusManager from './admin/BusManager';
 import BookingManager from './admin/BookingManager';
 import UserManager from './admin/UserManager';
+import StationManager from './admin/StationManager'; // Import StationManager
 import ChatBox from './components/ChatBox';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -39,6 +40,7 @@ const App: React.FC = () => {
           <Route path="trips" element={<TripManager />} />
           <Route path="bookings" element={<BookingManager />} />
           <Route path="users" element={<UserManager />} />
+          <Route path="stations" element={<StationManager />} /> {/* New Route */}
         </Route>
       </Routes>
       

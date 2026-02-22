@@ -14,5 +14,6 @@ import java.util.List;
 public class StationResponseDto {
     private Long stationId;
     private String stationName;
-    private List<BusResponseDto>  buses;
+    private String address;
+    private List<BusResponseDto> buses;
 }

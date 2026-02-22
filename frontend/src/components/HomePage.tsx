@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { 
   Facebook, Twitter, Youtube, Instagram, 
   CheckCircle, Headphones, Ticket, DollarSign, 
@@ -14,7 +15,13 @@ interface RouteCardProps {
   discount?: string;
 }
 
-// --- Mock Data (Using LoremFlickr for reliability) ---
+interface Station {
+  stationId: number;
+  stationName: string;
+  address: string;
+}
+
+// --- Mock Data ---
 const POPULAR_ROUTES: RouteCardProps[] = [
   {
     image: "https://loremflickr.com/800/600/sapa,mountain/all",
@@ -61,6 +68,7 @@ export const Header = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
+    localStorage.removeItem('role');
     setIsLoggedIn(false);
     navigate('/');
   };
@@ -106,9 +114,32 @@ const SearchForm = () => {
     destination: 'Hồ Chí Minh',
     date: new Date().toISOString().split('T')[0]
   });
+  
+  const [stations, setStations] = useState<Station[]>([]);
+  const [showOriginDropdown, setShowOriginDropdown] = useState(false);
+  const [showDestDropdown, setShowDestDropdown] = useState(false);
+  
+  // Fetch stations for dropdown
+  useEffect(() => {
+      const fetchStations = async () => {
+          try {
+              const response = await axios.get('/station');
+              setStations(response.data);
+          } catch (error) {
+              console.error("Failed to fetch stations", error);
+          }
+      };
+      fetchStations();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchParams({ ...searchParams, [e.target.name]: e.target.value });
+  };
+
+  const handleSelectStation = (type: 'origin' | 'destination', value: string) => {
+      setSearchParams({ ...searchParams, [type]: value });
+      if (type === 'origin') setShowOriginDropdown(false);
+      else setShowDestDropdown(false);
   };
 
   const handleSearch = () => {
@@ -126,24 +157,53 @@ const SearchForm = () => {
       destination: prev.origin
     }));
   };
+  
+  // Filter stations based on input
+  const filteredOriginStations = stations.filter(s => 
+      s.stationName.toLowerCase().includes(searchParams.origin.toLowerCase()) ||
+      s.address.toLowerCase().includes(searchParams.origin.toLowerCase())
+  );
+  
+  const filteredDestStations = stations.filter(s => 
+      s.stationName.toLowerCase().includes(searchParams.destination.toLowerCase()) ||
+      s.address.toLowerCase().includes(searchParams.destination.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full max-w-[1100px] mx-auto font-sans">
-      <div className="bg-white rounded-xl shadow-2xl flex-grow flex flex-col md:flex-row md:items-center py-3 px-2 text-gray-700 font-medium border border-gray-100">
+      <div className="bg-white rounded-xl shadow-2xl flex-grow flex flex-col md:flex-row md:items-center py-3 px-2 text-gray-700 font-medium border border-gray-100 relative z-50">
 
         {/* Ô 1: Nơi xuất phát */}
         <div className="flex-1 flex items-center gap-3 px-4 py-2 md:py-0 cursor-pointer hover:bg-gray-50 transition rounded-lg group relative border-b md:border-b-0 border-gray-100 pb-3 md:pb-0">
            <Circle className="text-blue-600 w-5 h-5 fill-current group-hover:scale-110 transition" /> 
-           <div className="flex flex-col w-full">
+           <div className="flex flex-col w-full relative">
               <span className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-0.5">Nơi xuất phát</span>
               <input 
                 type="text" 
                 name="origin"
                 value={searchParams.origin}
                 onChange={handleChange}
+                onFocus={() => setShowOriginDropdown(true)}
+                onBlur={() => setTimeout(() => setShowOriginDropdown(false), 200)}
                 className="text-lg font-bold text-gray-800 bg-transparent outline-none w-full placeholder-gray-300"
                 placeholder="Chọn điểm đi"
+                autoComplete="off"
               />
+              {/* Dropdown */}
+              {showOriginDropdown && filteredOriginStations.length > 0 && (
+                  <div className="absolute top-full left-0 w-full bg-white shadow-xl rounded-lg mt-2 max-h-60 overflow-y-auto border border-gray-100 z-50">
+                      {filteredOriginStations.map(s => (
+                          <div 
+                              key={s.stationId} 
+                              className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-none"
+                              onClick={() => handleSelectStation('origin', s.stationName)}
+                          >
+                              <div className="font-bold text-gray-800">{s.stationName}</div>
+                              <div className="text-xs text-gray-500">{s.address}</div>
+                          </div>
+                      ))}
+                  </div>
+              )}
            </div>
         </div>
 
@@ -160,16 +220,34 @@ const SearchForm = () => {
         {/* Ô 2: Nơi đến */}
          <div className="flex-1 flex items-center gap-3 px-4 py-2 md:py-0 cursor-pointer hover:bg-gray-50 transition rounded-lg md:pl-6 group border-b md:border-b-0 border-gray-100 pb-3 md:pb-0">
            <MapPin className="text-red-600 w-6 h-6 fill-current group-hover:scale-110 transition" />
-           <div className="flex flex-col w-full">
+           <div className="flex flex-col w-full relative">
               <span className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-0.5">Nơi đến</span>
               <input 
                 type="text" 
                 name="destination"
                 value={searchParams.destination}
                 onChange={handleChange}
+                onFocus={() => setShowDestDropdown(true)}
+                onBlur={() => setTimeout(() => setShowDestDropdown(false), 200)}
                 className="text-lg font-bold text-gray-800 bg-transparent outline-none w-full placeholder-gray-300"
                 placeholder="Chọn điểm đến"
+                autoComplete="off"
               />
+              {/* Dropdown */}
+              {showDestDropdown && filteredDestStations.length > 0 && (
+                  <div className="absolute top-full left-0 w-full bg-white shadow-xl rounded-lg mt-2 max-h-60 overflow-y-auto border border-gray-100 z-50">
+                      {filteredDestStations.map(s => (
+                          <div 
+                              key={s.stationId} 
+                              className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-none"
+                              onClick={() => handleSelectStation('destination', s.stationName)}
+                          >
+                              <div className="font-bold text-gray-800">{s.stationName}</div>
+                              <div className="text-xs text-gray-500">{s.address}</div>
+                          </div>
+                      ))}
+                  </div>
+              )}
            </div>
         </div>
 
@@ -356,7 +434,7 @@ export const Footer = () => {
         </div>
       </div>
       <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
-        &copy; 2026 TravelK. All rights reserved.
+        &copy; 2024 TravelK. All rights reserved.
       </div>
     </footer>
   );

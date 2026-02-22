@@ -255,7 +255,8 @@ const SearchResults: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-right min-w-[150px]">
-                    <div className="text-2xl font-bold text-orange-600 mb-2">{trip.price.toLocaleString()}đ</div>
+                    {/* Fix toLocaleString */}
+                    <div className="text-2xl font-bold text-orange-600 mb-2">{(trip.price || 0).toLocaleString()}đ</div>
                     <button onClick={() => selectTrip(trip)} className="w-full bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition shadow-sm">Chọn chuyến</button>
                   </div>
                 </div>
@@ -287,7 +288,8 @@ const SearchResults: React.FC = () => {
                   <div className="flex justify-between"><span className="text-gray-500">Ghế đã chọn:</span><span className="font-bold text-orange-600">{selectedSeats.join(', ') || '---'}</span></div>
                 </div>
                 <div className="border-t pt-4 mb-6">
-                  <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Tổng cộng:</span><span className="text-2xl font-bold text-blue-600">{(selectedSeats.length * selectedTrip.price).toLocaleString()}đ</span></div>
+                  {/* Fix toLocaleString */}
+                  <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Tổng cộng:</span><span className="text-2xl font-bold text-blue-600">{(selectedSeats.length * (selectedTrip.price || 0)).toLocaleString()}đ</span></div>
                 </div>
                 <button onClick={confirmBooking} disabled={selectedSeats.length === 0 || loading} className={`w-full py-3 rounded-lg font-bold text-white transition shadow-md ${selectedSeats.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}>{loading ? 'Đang xử lý...' : 'Xác nhận đặt vé'}</button>
               </div>
@@ -307,7 +309,8 @@ const SearchResults: React.FC = () => {
               <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Chi tiết thanh toán</h3>
               <div className="flex justify-between mb-2"><span className="text-gray-600">Tuyến xe:</span><span className="font-medium">{selectedTrip.origin} - {selectedTrip.destination}</span></div>
               <div className="flex justify-between mb-2"><span className="text-gray-600">Ghế đã chọn:</span><span className="font-medium">{selectedSeats.join(', ')}</span></div>
-              <div className="flex justify-between pt-2 border-t mt-2"><span className="font-bold text-gray-800">Tổng tiền:</span><span className="font-bold text-orange-600 text-xl">{(selectedSeats.length * selectedTrip.price).toLocaleString()}đ</span></div>
+              {/* Fix toLocaleString */}
+              <div className="flex justify-between pt-2 border-t mt-2"><span className="font-bold text-gray-800">Tổng tiền:</span><span className="font-bold text-orange-600 text-xl">{(selectedSeats.length * (selectedTrip.price || 0)).toLocaleString()}đ</span></div>
             </div>
             <div className="space-y-3">
               <button onClick={handlePayment} disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-md flex items-center justify-center gap-2">{loading ? 'Đang chuyển hướng...' : 'Thanh toán ngay qua VNPay'}</button>

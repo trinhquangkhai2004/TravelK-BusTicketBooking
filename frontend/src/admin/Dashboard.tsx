@@ -20,13 +20,17 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Assuming you have an axios instance with interceptors for token
-        // If not, you need to add Authorization header manually
         const token = localStorage.getItem('token');
         const response = await axios.get('/admin/statistics', {
             headers: { Authorization: `Bearer ${token}` }
         });
-        setStats(response.data);
+        const data = response.data;
+        setStats({
+            userCount: data.userCount || 0,
+            totalTicketSold: data.totalTicketSold || 0,
+            totalTrips: data.totalTrips || 0,
+            revenue: data.revenue || 0
+        });
       } catch (error) {
         console.error("Failed to fetch statistics", error);
       }
@@ -42,7 +46,8 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <p className="text-gray-500 text-sm font-medium">Tổng doanh thu</p>
-          <h4 className="text-2xl font-bold text-gray-800 mt-2">{stats.revenue.toLocaleString()}đ</h4>
+          {/* Fix lỗi toLocaleString khi revenue null */}
+          <h4 className="text-2xl font-bold text-gray-800 mt-2">{(stats.revenue || 0).toLocaleString()}đ</h4>
           <span className="text-green-500 text-xs font-medium">Cập nhật realtime</span>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">

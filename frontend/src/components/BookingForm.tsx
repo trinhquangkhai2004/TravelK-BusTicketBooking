@@ -448,8 +448,9 @@ const BookingForm: React.FC = () => {
                 </div>
                 
                 <div className="text-right min-w-[150px]">
+                  {/* Fix toLocaleString */}
                   <div className="text-2xl font-bold text-orange-600 mb-2">
-                    {trip.price.toLocaleString()}đ
+                    {(trip.price || 0).toLocaleString()}đ
                   </div>
                   <button
                     onClick={() => selectTrip(trip)}
@@ -517,7 +518,7 @@ const BookingForm: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 font-medium">Tổng cộng:</span>
                   <span className="text-2xl font-bold text-blue-600">
-                    {(selectedSeats.length * selectedTrip.price).toLocaleString()}đ
+                    {(selectedSeats.length * (selectedTrip.price || 0)).toLocaleString()}đ
                   </span>
                 </div>
               </div>
@@ -560,10 +561,11 @@ const BookingForm: React.FC = () => {
               <span className="text-gray-600">Ghế đã chọn:</span>
               <span className="font-medium">{selectedSeats.join(', ')}</span>
             </div>
+            {/* Fix toLocaleString */}
             <div className="flex justify-between pt-2 border-t mt-2">
               <span className="font-bold text-gray-800">Tổng tiền:</span>
               <span className="font-bold text-orange-600 text-xl">
-                {(selectedSeats.length * selectedTrip.price).toLocaleString()}đ
+                {(selectedSeats.length * (selectedTrip.price || 0)).toLocaleString()}đ
               </span>
             </div>
           </div>
