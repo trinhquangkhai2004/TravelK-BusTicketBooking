@@ -56,7 +56,7 @@ services:
 
   bus_app:
     build: .
-    container_name: travelK-bus_ticket_booking
+    container_name: travelK-bus-ticket-booking
     ports:
       - "8080:8080"
     depends_on:

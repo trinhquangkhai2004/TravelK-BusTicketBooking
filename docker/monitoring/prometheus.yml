@@ -7,10 +7,10 @@ scrape_configs:
 #    static_configs:
 #      - targets: [ 'host.docker.internal:9090' ]
 
-  - job_name: 'travelK-bus_ticket_booking'
+  - job_name: 'travelK-bus-ticket-booking'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['travelK-bus_ticket_booking:8080']
+      - targets: ['travelK-bus-ticket-booking:8080']
         labels:
-          application: 'travelK-bus_ticket_booking'
+          application: 'travelK-bus-ticket-booking'
 

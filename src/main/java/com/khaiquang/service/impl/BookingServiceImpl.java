@@ -39,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String HOLD_KEY_PREFIX = "hold:trip:";
-    private static final long HOLD_TIMEOUT = 1; //
+    private static final long HOLD_TIMEOUT = 1;
 
     @Override
     public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto) {
