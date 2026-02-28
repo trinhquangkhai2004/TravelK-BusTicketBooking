@@ -10,9 +10,11 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByTripId(Long tripId);
-    
+    List<Ticket> findByTripIdAndSeatNumberIn(Long tripId, List<String> seatNumbers);
     boolean existsByTripIdAndSeatNumber(Long tripId, String seatNumber);
-    
+
+    void deleteByBookingTripIdIn(List<Long> bookingTripIds);
+
     void deleteByBookingTripId(Long bookingTripId);
 
     @Query("SELECT COUNT(t) FROM Ticket t JOIN t.bookingTrip b WHERE b.status = 'PAID'")

@@ -14,21 +14,18 @@ import com.khaiquang.repository.UserRepository;
 import com.khaiquang.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
@@ -39,8 +36,16 @@ public class BookingServiceImpl implements BookingService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String HOLD_KEY_PREFIX = "hold:trip:";
-    private static final long HOLD_TIMEOUT = 1;
+    private static final long HOLD_TIMEOUT = 10; // 10 phút
 
+    private static final String RELEASE_LOCK_SCRIPT =
+            "if redis.call('get', KEYS[1]) == ARGV[1] then " +
+                    "   return redis.call('del', KEYS[1]) " +
+                    "else " +
+                    "   return 0 " +
+
+                    "end";
+    @Transactional
     @Override
     public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto) {
         Trip trip = tripRepository.findById(bookingRequestDto.getTripId())
@@ -50,21 +55,37 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new ResourceNotFoundException("user", "id", bookingRequestDto.getUserId()));
 
         List<String> requestedSeats = bookingRequestDto.getSeats();
+        Collections.sort(requestedSeats);
+
+
+        List<String> successfullyLockedKeys = new ArrayList<>();
+        String userId = user.getId().toString();
+
+        // Lấy Lock nhiều ghế
         
         for (String seatNum : requestedSeats) {
             String holdKey = generateHoldKey(trip.getId(), seatNum);
-            Object holderId = redisTemplate.opsForValue().get(holdKey);
-            
-            if (holderId != null && !holderId.toString().equals(user.getId().toString())) {
-                throw new RuntimeException("Ghế " + seatNum + " đang được giữ bởi người khác.");
-            }
-            
-            if (holderId == null) {
-                 if (ticketRepository.existsByTripIdAndSeatNumber(trip.getId(), seatNum)) {
-                    throw new RuntimeException("Ghế " + seatNum + " đã bị bán.");
+            Boolean isLocked = redisTemplate.opsForValue().setIfAbsent(holdKey, userId, HOLD_TIMEOUT, TimeUnit.MINUTES);
+
+            if (Boolean.TRUE.equals(isLocked)) {
+                successfullyLockedKeys.add(holdKey);
+            } else {
+                Object currentHolder = redisTemplate.opsForValue().get(holdKey);
+                if (currentHolder != null && currentHolder.toString().equals(userId)) {
+                    successfullyLockedKeys.add(holdKey);
+                } else {
+                    throw new RuntimeException("Ghế " + seatNum + " đang có người khác giữ hoặc thao tác!");
                 }
             }
         }
+
+        List<Ticket> existingTickets = ticketRepository.findByTripIdAndSeatNumberIn(trip.getId(), requestedSeats);
+
+        if (!existingTickets.isEmpty()) {
+            List<String> soldSeats = existingTickets.stream().map(Ticket::getSeatNumber).collect(Collectors.toList());
+            throw new RuntimeException("Rất tiếc, các ghế trên đã đươc bán: " + String.join(", ", soldSeats));
+        }
+
 
         BookingTrip bookingTrip = new BookingTrip();
         bookingTrip.setTrip(trip);
@@ -72,22 +93,20 @@ public class BookingServiceImpl implements BookingService {
         bookingTrip.setStatus("PENDING");
         BookingTrip savedBooking = bookingRepository.save(bookingTrip);
 
-        List<Ticket> tickets = new ArrayList<>();
-        BigDecimal ticketPrice = trip.getPrice();
-        
-        for (String seatNum : requestedSeats) {
-            Ticket ticket = Ticket.builder()
-                    .seatNumber(seatNum)
-                    .price(ticketPrice)
-                    .bookingTrip(savedBooking)
-                    .trip(trip)
-                    .build();
-            tickets.add(ticket);
-        }
+        List<Ticket> tickets = requestedSeats.stream().map(seatNum ->
+                Ticket.builder()
+                        .seatNumber(seatNum)
+                        .price(trip.getPrice())
+                        .bookingTrip(savedBooking)
+                        .trip(trip)
+                        .build())
+                .collect(Collectors.toList());
         ticketRepository.saveAll(tickets);
         
-        for (String seatNum : requestedSeats) {
-            redisTemplate.delete(generateHoldKey(trip.getId(), seatNum));
+        // Xóa Lock sau khi lưu thành công
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>(RELEASE_LOCK_SCRIPT, Long.class);
+        for(String lockKey : successfullyLockedKeys){
+            redisTemplate.execute(script, Collections.singletonList(lockKey), userId);
         }
 
         return new BookingResponseDto(
@@ -98,6 +117,7 @@ public class BookingServiceImpl implements BookingService {
                 user.getUserName(),
                 user.getPhoneNumber()
         );
+        
     }
 
     @Override
@@ -105,6 +125,7 @@ public class BookingServiceImpl implements BookingService {
         BookingTrip booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", bookingId));
         
+        // Sửa tên phương thức
         ticketRepository.deleteByBookingTripId(bookingId);
         bookingRepository.delete(booking);
     }
@@ -114,25 +135,10 @@ public class BookingServiceImpl implements BookingService {
         if (!tripRepository.existsById(tripId)) {
              throw new ResourceNotFoundException("Trip", "id", tripId);
         }
-        
-        List<String> bookedSeats = ticketRepository.findByTripId(tripId).stream()
+
+        return ticketRepository.findByTripId(tripId).stream()
                 .map(Ticket::getSeatNumber)
                 .collect(Collectors.toList());
-                
-        String pattern = HOLD_KEY_PREFIX + tripId + ":seat:*";
-        Set<String> keys = redisTemplate.keys(pattern);
-
-        if (keys != null) {
-            for (String key : keys) {
-                String[] parts = key.split(":");
-                String seatNum = parts[parts.length - 1];
-                if (!bookedSeats.contains(seatNum)) {
-                    bookedSeats.add(seatNum);
-                }
-            }
-        }
-
-        return bookedSeats;
     }
 
     @Override
@@ -158,11 +164,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void releaseSeat(Long tripId, String seatNumber, Long userId) {
         String key = generateHoldKey(tripId, seatNumber);
-        Object currentHolder = redisTemplate.opsForValue().get(key);
-        
-        if (currentHolder != null && currentHolder.toString().equals(userId.toString())) {
-            redisTemplate.delete(key);
-        }
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>(RELEASE_LOCK_SCRIPT, Long.class);
+        redisTemplate.execute(script, Collections.singletonList(key), userId.toString());
     }
 
     @Override
@@ -209,16 +212,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Scheduled(fixedRate = 60000)
+    @Transactional
     public void autoCancelUnpaidBookings() {
-        LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(1); // 1 phút
+        LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(5);
         
-        List<BookingTrip> expiredBookings = bookingRepository.findByStatusAndCreatedAtBefore("PENDING", expirationTime);
+        List<Long> expiredBookingIds = bookingRepository.findByStatusAndCreatedAtBefore("PENDING", expirationTime);
         
-        for (BookingTrip booking : expiredBookings) {
-            ticketRepository.deleteByBookingTripId(booking.getId());
-            booking.setStatus("CANCELLED");
-            bookingRepository.save(booking);
-            System.out.println("Auto-cancelled booking ID: " + booking.getId());
+        if (!expiredBookingIds.isEmpty()) {
+            // Sửa tên phương thức
+            ticketRepository.deleteByBookingTripIdIn(expiredBookingIds);
+            bookingRepository.updateStatusByIds("CANCELLED", expiredBookingIds);
+            System.out.println("Auto-cancelled booking ID: " + expiredBookingIds.size());
         }
     }
 }
