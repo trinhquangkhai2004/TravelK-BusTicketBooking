@@ -43,7 +43,7 @@
 *   **Containerization:** Docker, Docker Compose
 *   **Web Server:** Nginx (Reverse Proxy)
 *   **Monitoring:** Prometheus, Grafana
-*   **Implemented an automated Continuous Integration (CI) pipeline via GitHub Actions
+*   **Implemented an automated Continuous Integration (CI) pipeline via GitHub Actions**
 
 ## 🏗️ System Architecture
 
