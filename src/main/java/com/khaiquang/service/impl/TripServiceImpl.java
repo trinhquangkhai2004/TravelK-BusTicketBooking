@@ -3,13 +3,11 @@ package com.khaiquang.service.impl;
 import com.khaiquang.dto.mapper.TripMapper;
 import com.khaiquang.dto.request.TripDto;
 import com.khaiquang.dto.response.TripResponseDto;
-import com.khaiquang.entity.BookingTrip;
 import com.khaiquang.entity.Bus;
 import com.khaiquang.entity.Station;
 import com.khaiquang.entity.Trip;
 import com.khaiquang.exception.BusAPIException;
 import com.khaiquang.exception.ResourceNotFoundException;
-import com.khaiquang.repository.BookingRepository;
 import com.khaiquang.repository.BusRepository;
 import com.khaiquang.repository.StationRepository;
 import com.khaiquang.repository.TripRepository;
@@ -17,10 +15,11 @@ import com.khaiquang.service.StatisticService;
 import com.khaiquang.service.TripService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +36,7 @@ public class TripServiceImpl implements TripService {
 
 
     @Override
+    @CacheEvict(value = "trips", allEntries = true)
     public TripResponseDto addTrip(TripDto tripDto) {
         Bus bus = busRepository.findById(tripDto.getBusId()).orElseThrow(() ->
                 new ResourceNotFoundException("Bus", "id",  tripDto.getBusId()));
@@ -77,6 +77,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    @CacheEvict(value = "trips", allEntries = true)
     public TripResponseDto updateTrip(Long tripId, TripDto tripDto) {
         Trip trip = tripRepository.findById(tripId).orElseThrow(() ->
                 new ResourceNotFoundException("Trip", "id", tripId));
@@ -96,6 +97,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    @CacheEvict(value = "trips", allEntries = true)
     public void deleteTrip(Long tripId) {
         Trip trip = tripRepository.findById(tripId).orElseThrow(() ->
                 new ResourceNotFoundException("Trip", "id", tripId));
@@ -114,6 +116,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    @Cacheable(value = "trips", key = "#origin + '-' + #destination + '-' + #date")
     public List<TripResponseDto> searchTrips(String origin, String destination, LocalDate date) {
         return tripRepository.findByOriginAndDestinationAndDepartureDate(origin, destination, date)
                 .stream()

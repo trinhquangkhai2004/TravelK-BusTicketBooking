@@ -33,7 +33,4 @@ public class BookingRequestDto {
 
     private Long userId;
 
-    private String busName;
-    private String stationName;
-    private String userFullName;
 }
