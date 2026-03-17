@@ -50,10 +50,10 @@ const TripManager: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const busRes = await axios.get('/buses', { headers });
+      const busRes = await axios.get('/api/buses', { headers });
       setBuses(busRes.data);
 
-      const tripRes = await axios.get('/trips', { headers });
+      const tripRes = await axios.get('/api/trips', { headers });
       setTrips(tripRes.data);
     } catch (error) {
       console.error(error);
@@ -81,7 +81,7 @@ const TripManager: React.FC = () => {
     };
 
     try {
-      await axios.post('/trips', payload, { headers });
+      await axios.post('/api/trips', payload, { headers });
       toast.success("Tạo chuyến xe thành công!");
       setShowModal(false);
       fetchData(); 

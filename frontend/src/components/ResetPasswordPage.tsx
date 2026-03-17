@@ -21,7 +21,7 @@ const ResetPasswordPage: React.FC = () => {
     
     setLoading(true);
     try {
-      await axios.post('/auth/reset-password', { token, newPassword: password });
+      await axios.post('/api/auth/reset-password', { token, newPassword: password });
       toast.success("Đặt lại mật khẩu thành công! Vui lòng đăng nhập.");
       navigate('/auth');
     } catch (error: any) {

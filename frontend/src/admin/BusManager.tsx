@@ -41,10 +41,10 @@ const BusManager: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const busRes = await axios.get('/buses', { headers });
+      const busRes = await axios.get('/api/buses', { headers });
       setBuses(busRes.data);
 
-      const stationRes = await axios.get('/station', { headers });
+      const stationRes = await axios.get('/api/station', { headers });
       setStations(stationRes.data);
     } catch (error) {
       console.error(error);
@@ -72,7 +72,7 @@ const BusManager: React.FC = () => {
     };
     
     try {
-      await axios.post(`/buses/station/${formData.stationId}`, payload, { headers });
+      await axios.post(`/api/buses/station/${formData.stationId}`, payload, { headers });
       toast.success("Thêm xe thành công!");
       setShowModal(false);
       fetchData(); 
@@ -86,7 +86,7 @@ const BusManager: React.FC = () => {
   const handleDelete = async (id: number) => {
       if(!window.confirm("Bạn có chắc chắn muốn xóa xe này?")) return;
       try {
-          await axios.delete(`/buses/${id}`, { headers });
+          await axios.delete(`/api/buses/${id}`, { headers });
           toast.success("Xóa xe thành công!");
           setBuses(prev => prev.filter(bus => bus.id !== id));
       } catch (error: any) {

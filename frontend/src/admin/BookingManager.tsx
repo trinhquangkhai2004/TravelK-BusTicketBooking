@@ -26,7 +26,7 @@ const BookingManager: React.FC = () => {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/booking', { headers });
+      const response = await axios.get('/api/booking', { headers });
       setBookings(response.data);
     } catch (error) {
       console.error(error);
@@ -44,7 +44,7 @@ const BookingManager: React.FC = () => {
     setBookings(bookings.filter(b => b.id !== id));
 
     try {
-      await axios.delete(`/booking/${id}`, { headers });
+      await axios.delete(`/api/booking/${id}`, { headers });
       toast.success("Hủy vé thành công!");
     } catch (error) {
       console.error(error);

@@ -25,7 +25,7 @@ const StationManager: React.FC = () => {
   const fetchStations = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/station', { headers });
+      const response = await axios.get('/api/station', { headers });
       setStations(response.data);
     } catch (error) {
       console.error(error);
@@ -41,7 +41,7 @@ const StationManager: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('/station', formData, { headers });
+      await axios.post('/api/station', formData, { headers });
       toast.success("Thêm trạm thành công!");
       setShowModal(false);
       setFormData({ name: '', address: '' });
@@ -55,7 +55,7 @@ const StationManager: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa trạm này?")) return;
     try {
-      await axios.delete(`/station/${id}`, { headers });
+      await axios.delete(`/api/station/${id}`, { headers });
       toast.success("Xóa trạm thành công!");
       fetchStations();
     } catch (error) {

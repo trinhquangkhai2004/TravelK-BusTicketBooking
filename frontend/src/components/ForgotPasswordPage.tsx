@@ -11,7 +11,7 @@ const ForgotPasswordPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('/auth/forgot-password', { email });
+      await axios.post('/api/auth/forgot-password', { email });
       toast.success("Đã gửi link đặt lại mật khẩu vào email của bạn.");
     } catch (error: any) {
       console.error(error);

@@ -5,7 +5,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Header, Footer } from './HomePage';
 
 // Use full URL to avoid proxy issues
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = '/api';
 
 interface Trip {
   id: number;

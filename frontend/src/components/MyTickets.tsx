@@ -24,7 +24,7 @@ const MyTickets: React.FC = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get(`/booking/user/${userId}`);
+      const response = await axios.get(`/api/booking/user/${userId}`);
       setBookings(response.data);
     } catch (error) {
       console.error("Failed to fetch bookings", error);

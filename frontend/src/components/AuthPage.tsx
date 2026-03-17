@@ -38,7 +38,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post('/auth/login', loginData);
+      const response = await axios.post('/api/auth/login', loginData);
       const { accessToken, userId, username, roles } = response.data;
       
       localStorage.setItem('token', accessToken);
@@ -68,7 +68,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('/user', registerData);
+      await axios.post('/api/user', registerData);
       toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
       setIsLogin(true); 
       setRegisterData({ userName: '', password: '', email: '', phoneNumber: '' });

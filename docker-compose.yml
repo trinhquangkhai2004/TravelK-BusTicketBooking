@@ -10,7 +10,7 @@ services:
       MYSQL_DATABASE: bus_reservation_db
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - travelK_net
 
@@ -40,7 +40,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./backend/docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     networks:
@@ -55,7 +55,7 @@ services:
       - travelK_net
 
   bus_app:
-    build: .
+    build: ./backend
     container_name: travelK-bus-ticket-booking
     ports:
       - "8080:8080"
@@ -63,6 +63,8 @@ services:
       - db_mysql
       - cache_redis
       - rabbitmq
+    env_file:
+      - ./backend/.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db_mysql:3306/bus_reservation_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
@@ -71,9 +73,6 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
     networks:
       - travelK_net
 

@@ -123,7 +123,7 @@ const SearchForm = () => {
   useEffect(() => {
       const fetchStations = async () => {
           try {
-              const response = await axios.get('/station');
+              const response = await axios.get('/api/station');
               setStations(response.data);
           } catch (error) {
               console.error("Failed to fetch stations", error);

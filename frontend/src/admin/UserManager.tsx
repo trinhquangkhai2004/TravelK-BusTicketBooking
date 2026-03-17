@@ -25,7 +25,7 @@ const UserManager: React.FC = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/user/all', { headers });
+      const response = await axios.get('/api/user/all', { headers });
       setUsers(response.data);
     } catch (error) {
       console.error(error);
@@ -41,7 +41,7 @@ const UserManager: React.FC = () => {
     setUsers(users.filter(u => u.userId !== id));
 
     try {
-      await axios.delete(`/user/${id}`, { headers });
+      await axios.delete(`/api/user/${id}`, { headers });
       toast.success("Xóa người dùng thành công!");
     } catch (error) {
       console.error(error);

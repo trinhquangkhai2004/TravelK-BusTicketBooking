@@ -45,7 +45,7 @@ interface BookingRequest {
 }
 
 // Use full URL to avoid proxy issues
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = '/api';
 
 const BookingForm: React.FC = () => {
   const [step, setStep] = useState(1);
