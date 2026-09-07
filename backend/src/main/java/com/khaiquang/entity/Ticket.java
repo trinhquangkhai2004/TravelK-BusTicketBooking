@@ -11,7 +11,10 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "tickets")
+// Chốt chặn cuối cùng chống đặt trùng ghế: một ghế chỉ tồn tại 1 vé trên mỗi chuyến.
+// Vé bị huỷ được xoá hẳn (autoCancelUnpaidBookings) nên ràng buộc này không chặn việc đặt lại ghế đã huỷ.
+@Table(name = "tickets", uniqueConstraints = @UniqueConstraint(
+        name = "uk_tickets_trip_seat", columnNames = {"trip_id", "seat_number"}))
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

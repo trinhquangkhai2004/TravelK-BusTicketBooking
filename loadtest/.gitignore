@@ -1,0 +1,2 @@
+# Sinh ra khi chạy load test — chứa JWT thật của user test, không commit.
+out/

@@ -24,6 +24,13 @@ public class GlobalExceptionHandler {
                 request.getDescription(false));
         return new ResponseEntity<>(details, HttpStatus.CONFLICT);
     }
+    // Tranh chấp ghế (bị giữ / đã bán / vi phạm unique trip_id+seat_number) là lỗi 409, không phải 500
+    @ExceptionHandler(SeatUnavailableException.class)
+    public ResponseEntity<ErrorDetails> handleSeatUnavailableException(RuntimeException ex, WebRequest request) {
+        ErrorDetails details = new ErrorDetails(new Date(), ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(details, HttpStatus.CONFLICT);
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
         ErrorDetails details = new ErrorDetails(new Date(), ex.getMessage(),

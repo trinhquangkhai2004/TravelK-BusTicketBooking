@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 // --- Icons (SVG) ---
 const SearchIcon = () => (
@@ -48,6 +49,7 @@ interface BookingRequest {
 const API_BASE_URL = '/api';
 
 const BookingForm: React.FC = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [searchParams, setSearchParams] = useState({
     origin: '',
@@ -100,10 +102,13 @@ const BookingForm: React.FC = () => {
         };
         
         if ('keepalive' in new Request('')) {
+          // fetch không đi qua interceptor của axios nên phải tự gắn token
+          const token = localStorage.getItem('token');
           fetch(`${API_BASE_URL}/booking/release-batch`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             body: JSON.stringify(payload),
             keepalive: true,
@@ -152,6 +157,13 @@ const BookingForm: React.FC = () => {
   };
 
   const selectTrip = async (trip: Trip) => {
+    // Sơ đồ ghế yêu cầu đăng nhập, chặn sớm thay vì để request bị 403
+    if (!localStorage.getItem('token')) {
+      toast.info("Vui lòng đăng nhập để xem sơ đồ ghế và đặt vé.");
+      navigate('/auth');
+      return;
+    }
+
     setSelectedTrip(trip);
     setLoading(true);
     try {
@@ -171,11 +183,16 @@ const BookingForm: React.FC = () => {
       
       return () => clearInterval(interval);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Không thể tải thông tin ghế.");
-      setBookedSeats([]); 
-      setStep(3); 
+      // Không nhận được danh sách ghế đã bán thì sơ đồ ghế sẽ hiển thị sai, nên không cho đi tiếp
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        navigate('/auth');
+        return;
+      }
+      toast.error("Không thể tải thông tin ghế, vui lòng thử lại.");
+      setSelectedTrip(null);
     } finally {
       setLoading(false);
     }
@@ -209,6 +226,13 @@ const BookingForm: React.FC = () => {
           });
           setSelectedSeats([...selectedSeats, seat]);
       } catch (error: any) {
+          // 401/403 là lỗi đăng nhập chứ không phải ghế bị người khác giữ
+          if (error.response?.status === 401 || error.response?.status === 403) {
+              toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+              navigate('/auth');
+              return;
+          }
+
           toast.error(error.response?.data || "Ghế này vừa có người chọn!");
           if (selectedTrip) {
               const res = await axios.get(`${API_BASE_URL}/booking/trip/${selectedTrip.id}/seats`);
@@ -244,6 +268,11 @@ const BookingForm: React.FC = () => {
       setStep(4); // Move to Payment Step
     } catch (error: any) {
       console.error(error);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        navigate('/auth');
+        return;
+      }
       toast.error(error.response?.data?.message || "Đặt vé thất bại.");
     } finally {
       setLoading(false);

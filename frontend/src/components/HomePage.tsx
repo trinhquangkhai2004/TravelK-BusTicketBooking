@@ -24,34 +24,34 @@ interface Station {
 // --- Mock Data ---
 const POPULAR_ROUTES: RouteCardProps[] = [
   {
-    image: "https://loremflickr.com/800/600/sapa,mountain/all",
+    image: "/images/sapa.jpg",
     title: "Hà Nội đi Sa Pa",
     price: "Từ 250k VNĐ",
     discount: "-15%"
   },
   {
-    image: "https://loremflickr.com/800/600/dalat,flower/all",
+    image: "/images/dalat.jpg",
     title: "Sài Gòn đi Đà Lạt",
     price: "Từ 300k VNĐ",
     discount: "Hot"
   },
   {
-    image: "https://loremflickr.com/800/600/hoian,lantern/all",
+    image: "/images/hoian.jpg",
     title: "Đà Nẵng đi Hội An",
     price: "Từ 150k VNĐ"
   },
   {
-    image: "https://loremflickr.com/800/600/nhatrang,beach/all",
+    image: "/images/nhatrang.jpg",
     title: "Sài Gòn đi Nha Trang",
     price: "Từ 280k VNĐ"
   },
   {
-    image: "https://loremflickr.com/800/600/vungtau,sea/all",
+    image: "/images/vungtau.jpg",
     title: "Sài Gòn đi Vũng Tàu",
     price: "Từ 180k VNĐ"
   },
   {
-    image: "https://loremflickr.com/800/600/hue,citadel/all",
+    image: "/images/hue.jpg",
     title: "Hà Nội đi Huế",
     price: "Từ 350k VNĐ"
   }

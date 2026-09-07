@@ -43,10 +43,9 @@ public class BookingController {
     public ResponseEntity<?> holdSeat(@RequestBody Map<String, Object> payload) {
         Long tripId = Long.valueOf(payload.get("tripId").toString());
         String seatNumber = payload.get("seatNumber").toString();
-        Long userId = Long.valueOf(payload.get("userId").toString());
-        
+
         try {
-            bookingService.holdSeat(tripId, seatNumber, userId);
+            bookingService.holdSeat(tripId, seatNumber);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
@@ -57,9 +56,8 @@ public class BookingController {
     public ResponseEntity<?> releaseSeat(@RequestBody Map<String, Object> payload) {
         Long tripId = Long.valueOf(payload.get("tripId").toString());
         String seatNumber = payload.get("seatNumber").toString();
-        Long userId = Long.valueOf(payload.get("userId").toString());
-        
-        bookingService.releaseSeat(tripId, seatNumber, userId);
+
+        bookingService.releaseSeat(tripId, seatNumber);
         return ResponseEntity.ok().build();
     }
 
@@ -67,13 +65,13 @@ public class BookingController {
     public ResponseEntity<?> releaseSeats(@RequestBody Map<String, Object> payload) {
         Long tripId = Long.valueOf(payload.get("tripId").toString());
         List<String> seatNumbers = (List<String>) payload.get("seatNumbers");
-        Long userId = Long.valueOf(payload.get("userId").toString());
-        
-        bookingService.releaseSeats(tripId, seatNumbers, userId);
+
+        bookingService.releaseSeats(tripId, seatNumbers);
         return ResponseEntity.ok().build();
     }
-    
+
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == principal.id") // Chỉ xem được booking của chính mình
     public ResponseEntity<List<BookingResponseDto>> getBookingsByUserId(@PathVariable Long userId) {
         return new ResponseEntity<>(bookingService.getBookingsByUserId(userId), HttpStatus.OK);
     }

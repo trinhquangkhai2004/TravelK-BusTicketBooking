@@ -31,6 +31,4 @@ public class BookingRequestDto {
     @NotEmpty(message = "Seats cannot be empty")
     private List<String> seats;
 
-    private Long userId;
-
 }
